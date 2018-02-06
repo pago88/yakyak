@@ -343,6 +343,13 @@ app.on 'ready', ->
 
     ipc.on 'modifyotrstatus', seqreq (ev, conv_id, otr) ->
         client.modifyotrstatus conv_id, otr, false, (ev, conv_id, otr) -> conv_id
+        .then (res) ->
+            client.syncrecentconversations().then (r) ->
+                ipcsend 'syncrecentconversations:response', r
+                # this is because we use syncrecent on reqinit (dev-mode
+                # refresh). if we succeeded getting a response, we call it
+                # connected.
+                ipcsend 'connected'
 
     # retry
     ipc.on 'deleteconversation', seqreq (ev, conv_id) ->
